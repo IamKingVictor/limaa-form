@@ -1,101 +1,219 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, FormEvent, ChangeEvent } from "react";
+import Select from "react-select";
+import countries from "world-countries";
+
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  kingschat_username: string;
+  country: { label: string; value: string } | null;
+}
+
+const UserRegistrationForm: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    kingschat_username: "",
+    country: null,
+  });
+
+  // Generate country options
+  const countryOptions = countries.map((country) => ({
+    value: country.cca2,
+    label: country.name.common,
+  }));
+
+  // Handle input changes
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  // Handle country selection changes
+  const handleCountryChange = (selectedOption: { label: string; value: string } | null) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      country: selectedOption,
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:5000/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          kingschat_username: formData.kingschat_username,
+          country: formData.country?.label || "",
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("Registration successful:", result);
+        alert("Registration successful!");
+
+        // Reset form
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phoneNumber: "",
+          kingschat_username: "",
+          country: null,
+        });
+      } else {
+        const errorResult = await response.json();
+        console.error("Registration failed:", errorResult);
+        alert(`Registration failed: ${errorResult.message}`);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("An error occurred during registration");
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        background: "linear-gradient(135deg, black 0%, #BF9B30 100%)",
+      }}
+    >
+      <div className="bg-white/20 backdrop-blur-lg rounded-xl p-8 w-full max-w-md shadow-2xl">
+        <h2 className="text-3xl font-bold mb-6 text-white text-center">
+          User Registration
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="firstName" className="block text-white mb-2">
+              First Name
+            </label>
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              placeholder="Enter first name"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md 
+                         bg-white/10 text-white placeholder-gray-300 
+                         focus:outline-none focus:ring-2 focus:ring-gold-500"
+              required
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+          <div>
+            <label htmlFor="lastName" className="block text-white mb-2">
+              Last Name
+            </label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              placeholder="Enter last name"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md 
+                         bg-white/10 text-white placeholder-gray-300 
+                         focus:outline-none focus:ring-2 focus:ring-gold-500"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="email" className="block text-white mb-2">
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter email address"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md 
+                         bg-white/10 text-white placeholder-gray-300 
+                         focus:outline-none focus:ring-2 focus:ring-gold-500"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="phoneNumber" className="block text-white mb-2">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              placeholder="Enter phone number"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md 
+                         bg-white/10 text-white placeholder-gray-300 
+                         focus:outline-none focus:ring-2 focus:ring-gold-500"
+            />
+          </div>
+          <div>
+            <label htmlFor="kingschat_username" className="block text-white mb-2">
+              Kings Chat Username
+            </label>
+            <input
+              type="text"
+              id="kingschat_username"
+              name="kingschat_username"
+              value={formData.kingschat_username}
+              onChange={handleChange}
+              placeholder="Enter KingsChat handle"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md 
+                         bg-white/10 text-white placeholder-gray-300 
+                         focus:outline-none focus:ring-2 focus:ring-gold-500"
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="country" className="block text-white mb-2">
+              Country
+            </label>
+            <Select
+              id="country"
+              instanceId="country-select"
+              options={countryOptions}
+              value={formData.country}
+              onChange={handleCountryChange}
+              placeholder="Select your country"
+              className="text-black"
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full py-3 mt-4 bg-yellow-600 text-black 
+                       font-bold rounded-md hover:bg-yellow-700 
+                       transition-colors duration-300 
+                       focus:outline-none focus:ring-2 focus:ring-yellow-500"
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            Register
+          </button>
+        </form>
+      </div>
     </div>
   );
-}
+};
+
+export default UserRegistrationForm;
