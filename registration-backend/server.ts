@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
-import userRoutes from "./routes/userRoutes"; // if '.js is needed in runtime
+//import userRoutes from "./routes/userRoutes.js";
 
 // Initialize dotenv
 dotenv.config();
@@ -24,7 +24,7 @@ mongoose.connect(process.env.MONGODB_URI as string)
 
 // Corrected routing
 // Use the user registration routes under /api/users instead of /api/register
-app.use("/api/users", userRoutes);
+app.use("/api/users", require("./routes/userRoutes"));
 
 // Root route (GET /)
 app.get("/", (req: Request, res: Response) => {
