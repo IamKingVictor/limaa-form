@@ -1,9 +1,8 @@
 import express from "express";
-import User from "../models/User.js";
+import User from "../models/User";
 
 const router = express.Router();
 
-// Handle user registration
 router.post("/", async (req, res) => {
   const { firstName, lastName, email, phoneNumber, kingschat_username, country } = req.body;
 

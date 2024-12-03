@@ -4,16 +4,11 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 //import userRoutes from "./routes/userRoutes.js";
 
-// Initialize dotenv
 dotenv.config();
 
-// Create an Express app
 const app = express();
+app.use(bodyParser.json()); 
 
-// Middleware
-app.use(bodyParser.json()); // to handle JSON request bodies
-
-// Set up the MongoDB connection
 mongoose.connect(process.env.MONGODB_URI as string)
   .then(() => {
     console.log("Connected to MongoDB");
@@ -22,16 +17,11 @@ mongoose.connect(process.env.MONGODB_URI as string)
     console.error("Error connecting to MongoDB:", err);
   });
 
-// Corrected routing
-// Use the user registration routes under /api/users instead of /api/register
 app.use("/api/users", require("./routes/userRoutes"));
-
-// Root route (GET /)
 app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to the Registration Backend!");
 });
 
-// Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
