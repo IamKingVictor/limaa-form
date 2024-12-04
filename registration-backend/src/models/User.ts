@@ -7,6 +7,7 @@ export interface IUser extends Document {
   phoneNumber: string;
   kingschat_username: string;
   country: string;
+  zone: string; // Add zone to the interface
 }
 
 const UserSchema = new mongoose.Schema({
@@ -16,6 +17,7 @@ const UserSchema = new mongoose.Schema({
   phoneNumber: { type: String },
   kingschat_username: { type: String, required: true },
   country: { type: String, required: true },
+  zone: { type: String, required: true }, // Add zone to the schema
 });
 
 export default mongoose.model<IUser>("User", UserSchema);
